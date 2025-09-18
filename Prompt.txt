@@ -1,0 +1,504 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<SelfHealAIProject date="2025-09-17">
+  <Metadata>
+    <Title>SelfHeal-AI — AI-Powered Server Guardian</Title>
+    <Author>Created with Bestie (you) + Assistant</Author>
+    <Description>
+      Comprehensive project specification, folder layout, config samples, API integrations (Zscaler, VirusTotal),
+      Ubuntu integration, firmware & patch checks, AI anomaly detection guidance, step-by-step install & deployment.
+    </Description>
+    <Motto>Regular updates are not optional — they're the first line of defense.</Motto>
+  </Metadata>
+
+  <Overview>
+    <Summary>
+      SelfHeal-AI is a Python CLI tool for Ubuntu servers that monitors logs in realtime, detects anomalies (optionally using ML),
+      automatically blocks suspicious IPs, self-heals services (restarts crashed web services), performs backups, enriches detections
+      with Zscaler & VirusTotal threat intelligence, and proactively alerts administrators about outdated firmware and unpatched systems.
+      The architecture is modular and plugin-friendly so you can extend detection, alerting, or integrations over time.
+    </Summary>
+  </Overview>
+
+  <Features>
+    <Feature id="1">Realtime Log Monitoring (watchdog) — access.log, error.log, auth.log</Feature>
+    <Feature id="2">AI Anomaly Detection (IsolationForest + other classifiers) — offline training via scikit-learn + joblib</Feature>
+    <Feature id="3">IP Blocking (iptables / ufw) with whitelist support</Feature>
+    <Feature id="4">Self-Healing (systemctl restart for apache2/nginx etc.)</Feature>
+    <Feature id="5">Alerts (Telegram / Discord) — immediate notifications for blocked IPs, restarts, update alerts</Feature>
+    <Feature id="6">Threat Intelligence (Zscaler + VirusTotal API enrichment)</Feature>
+    <Feature id="7">System Health Checks — firmware (fwupdmgr) and security updates (apt) alerts</Feature>
+    <Feature id="8">Backups of critical configs & logs (scheduled)</Feature>
+    <Feature id="9">Plugin system — drop-in python modules under /plugins for extensibility</Feature>
+    <Feature id="10">Ubuntu native deployment — systemd service, iptables/ufw usage, designed for production servers</Feature>
+  </Features>
+
+  <APIs>
+    <API name="Zscaler">
+      <Purpose>Reputation lookup for IPs, domains, URLs to confirm maliciousness before taking actions</Purpose>
+      <Auth>API Key / Bearer token (store securely in configs/settings.json)</Auth>
+      <ExampleUsage><![CDATA[
+def check_zscaler(ip, api_key):
+    import requests
+    url = f"https://api.zscaler.com/threatinfo/ip/{ip}"
+    headers = {"Authorization": f"Bearer {api_key}"}
+    r = requests.get(url, headers=headers, timeout=10)
+    if r.status_code == 200:
+        return r.json()
+    return {}
+]]></ExampleUsage>
+      <Notes>Follow Zscaler API docs for endpoints & rate limits. Use enrichment to increase confidence before auto-blocking.</Notes>
+    </API>
+
+    <API name="VirusTotal">
+      <Purpose>Check IPs/URLs/files/hashes against multiple AV engines and get last_analysis results</Purpose>
+      <Auth>x-apikey header — store in configs/settings.json</Auth>
+      <ExampleUsage><![CDATA[
+def check_virustotal_ip(ip, api_key):
+    import requests
+    url = f"https://www.virustotal.com/api/v3/ip_addresses/{ip}"
+    headers = {"x-apikey": api_key}
+    r = requests.get(url, headers=headers, timeout=10)
+    if r.status_code == 200:
+        return r.json()
+    return {}
+]]></ExampleUsage>
+      <Notes>Respect rate limits and caching: cache VT responses to avoid hitting quotas for repeated queries.</Notes>
+    </API>
+  </APIs>
+
+  <SystemHealthChecks>
+    <FirmwareCheck>
+      <Command><![CDATA[
+sudo fwupdmgr get-updates
+]]></Command>
+      <Description>Run periodically; alert if any updates are reported.</Description>
+    </FirmwareCheck>
+
+    <SecurityPatchCheck>
+      <Commands>
+        <Command><![CDATA[
+sudo apt update
+apt list --upgradable
+]]></Command>
+      </Commands>
+      <Description>Detect security package upgrades (look for packages flagged as security); send alert if present.</Description>
+    </SecurityPatchCheck>
+
+    <ScheduleSuggestion>
+      <Daily>Run patch check daily (or at least weekly); send consolidated reports via Telegram</Daily>
+      <Firmware>Run firmware check weekly and before major maintenance windows</Firmware>
+    </ScheduleSuggestion>
+  </SystemHealthChecks>
+
+  <FolderStructure>
+    <Root>self-heal-ai/</Root>
+    <Children>
+      <Dir name="core">monitor.py, anomaly_ai.py, blocker.py, healer.py, alert.py, backup.py, zscaler_api.py, virustotal_api.py, healthcheck.py</Dir>
+      <Dir name="plugins">example_plugin.py — dynamic plugin modules</Dir>
+      <Dir name="configs">settings.json, whitelist.txt</Dir>
+      <Dir name="logs">activity.log</Dir>
+      <File>main.py (CLI entry point)</File>
+      <File>requirements.txt</File>
+      <File>README.md</File>
+    </Children>
+  </FolderStructure>
+
+  <SampleFiles>
+    <settings_json><![CDATA[
+{
+  "apache_log_path": "/var/log/apache2/",
+  "telegram_bot_token": "YOUR_TELEGRAM_TOKEN",
+  "telegram_chat_id": "YOUR_CHAT_ID",
+  "discord_webhook": "YOUR_DISCORD_WEBHOOK_URL",
+  "web_service": "apache2",
+  "zscaler_api_key": "YOUR_ZSCALER_KEY",
+  "virustotal_api_key": "YOUR_VIRUSTOTAL_KEY",
+  "use_iptables": true,
+  "backup_paths": [
+    "/etc/apache2",
+    "/var/log/apache2"
+  ],
+  "backup_destination": "/var/backups/selfheal",
+  "model_path": "model.pkl",
+  "healthcheck_schedule": "daily",
+  "whitelist_path": "configs/whitelist.txt"
+}
+]]></settings_json>
+
+    <requirements_txt><![CDATA[
+watchdog
+requests
+psutil
+scikit-learn
+numpy
+pandas
+joblib
+fwupd
+python-dateutil
+python-magic
+]]></requirements_txt>
+
+    <basic_monitor_py><![CDATA[
+# core/monitor.py (minimal)
+import time
+from watchdog.observers import Observer
+from watchdog.events import FileSystemEventHandler
+
+class LogHandler(FileSystemEventHandler):
+    def __init__(self, process_func):
+        self.process_func = process_func
+
+    def on_modified(self, event):
+        if not event.is_directory and event.src_path.endswith("access.log"):
+            with open(event.src_path, "r", errors="ignore") as f:
+                lines = f.readlines()
+                last_line = lines[-1] if lines else ""
+                if last_line.strip():
+                    self.process_func(last_line.strip())
+
+def start_monitor(log_path, process_func):
+    observer = Observer()
+    event_handler = LogHandler(process_func)
+    observer.schedule(event_handler, path=log_path, recursive=False)
+    observer.start()
+    try:
+        while True:
+            time.sleep(1)
+    except KeyboardInterrupt:
+        observer.stop()
+    observer.join()
+]]></basic_monitor_py>
+
+    <sample_blocker_py><![CDATA[
+# core/blocker.py (iptables)
+import subprocess
+
+def block_ip(ip):
+    try:
+        subprocess.run(["/sbin/iptables", "-A", "INPUT", "-s", ip, "-j", "DROP"], check=True)
+        return True
+    except subprocess.CalledProcessError:
+        return False
+
+def unblock_ip(ip):
+    try:
+        subprocess.run(["/sbin/iptables", "-D", "INPUT", "-s", ip, "-j", "DROP"], check=True)
+        return True
+    except subprocess.CalledProcessError:
+        return False
+]]></sample_blocker_py>
+
+    <sample_alert_py><![CDATA[
+# core/alert.py (Telegram)
+import requests
+
+def send_telegram_alert(bot_token, chat_id, message):
+    url = f"https://api.telegram.org/bot{bot_token}/sendMessage"
+    data = {"chat_id": chat_id, "text": message}
+    try:
+        requests.post(url, data=data, timeout=5)
+    except Exception as e:
+        # log failure
+        pass
+]]></sample_alert_py>
+
+    <sample_healthcheck_py><![CDATA[
+# core/healthcheck.py (checks firmware + updates)
+import subprocess
+
+def check_firmware_updates():
+    try:
+        r = subprocess.run(["fwupdmgr", "get-updates"], capture_output=True, text=True, timeout=30)
+        out = r.stdout.strip()
+        if out and "No updates" not in out:
+            return out
+    except Exception as e:
+        return f"fwupd check failed: {e}"
+    return None
+
+def check_security_updates():
+    try:
+        subprocess.run(["apt", "update"], check=True, capture_output=True, text=True, timeout=120)
+        r = subprocess.run(["apt", "list", "--upgradable"], capture_output=True, text=True)
+        upgrades = [l for l in r.stdout.splitlines() if "security" in l.lower() or "ubuntu" in l.lower()]
+        return upgrades if upgrades else None
+    except Exception as e:
+        return f"apt check failed: {e}"
+]]></sample_healthcheck_py>
+
+    <systemd_service><![CDATA[
+# /etc/systemd/system/selfheal.service
+[Unit]
+Description=SelfHeal-AI Monitor Service
+After=network.target
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/opt/self-heal-ai
+ExecStart=/usr/bin/python3 /opt/self-heal-ai/main.py
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
+]]></systemd_service>
+  </SampleFiles>
+
+  <Installation>
+    <Summary>Install dependencies, create folders, configure settings, register systemd service, and start monitoring.</Summary>
+
+    <Steps>
+      <Step number="1" title="Clone & Setup Project">
+        <Commands><![CDATA[
+# On Ubuntu
+sudo apt update && sudo apt upgrade -y
+sudo apt install -y python3 python3-pip python3-venv fwupd
+sudo git clone https://github.com/yourname/self-heal-ai.git /opt/self-heal-ai
+cd /opt/self-heal-ai
+python3 -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt
+mkdir -p configs logs plugins /var/backups/selfheal
+cp configs/settings.example.json configs/settings.json
+]]></Commands>
+      </Step>
+
+      <Step number="2" title="Edit Configuration">
+        <Instructions>
+          Open configs/settings.json and populate:
+          - telegram_bot_token, telegram_chat_id
+          - zscaler_api_key, virustotal_api_key
+          - ensure apache_log_path matches your system (e.g., /var/log/apache2/)
+          - configure backup paths and whitelist file
+        </Instructions>
+      </Step>
+
+      <Step number="3" title="(Optional) Train ML Model">
+        <Commands><![CDATA[
+# Prepare training data: extract features from historical logs -> CSV
+# Example using sklearn
+python3 train_model.py --input data/features.csv --output core/model.pkl
+]]></Commands>
+        <Notes>Training script should produce model.pkl saved to model_path referenced in settings.json. Training offline and copying model to server is recommended for production.</Notes>
+      </Step>
+
+      <Step number="4" title="Setup systemd">
+        <Commands><![CDATA[
+sudo cp tools/selfheal.service /etc/systemd/system/selfheal.service
+sudo systemctl daemon-reload
+sudo systemctl enable selfheal.service
+sudo systemctl start selfheal.service
+sudo journalctl -u selfheal -f
+]]></Commands>
+      </Step>
+
+      <Step number="5" title="Test basic functionality">
+        <Checklist>
+          <Item>Tail logs: create fake access.log lines → check monitor processes them</Item>
+          <Item>Inject a known-bad IP into logs and ensure blocker.py blocks it (or simulates block in dry-run)</Item>
+          <Item>Kill apache2 service to verify healer auto-restarts</Item>
+          <Item>Run firmware & apt checks and verify Telegram alerts</Item>
+        </Checklist>
+      </Step>
+    </Steps>
+  </Installation>
+
+  <Configuration>
+    <Whitelist>configs/whitelist.txt — one IP per line; monitor should check whitelist before blocking.</Whitelist>
+    <Cache>Cache threat intelligence results (VirusTotal/Zscaler) locally for a configurable TTL to avoid repeated queries and hitting rate limits.</Cache>
+    <DryRunMode>
+      <Purpose>Safe testing on production: allow actions to be logged but not executed.</Purpose>
+      <HowTo>settings.json: "dry_run": true — code checks flag before executing iptables / systemctl commands.</HowTo>
+    </DryRunMode>
+  </Configuration>
+
+  <ModelTraining>
+    <Goal>Train an IsolationForest or ensemble to detect anomalous log entries based on features</Goal>
+    <FeatureSuggestions>
+      <Feature>HTTP status code</Feature>
+      <Feature>Request method (GET/POST)</Feature>
+      <Feature>Request length</Feature>
+      <Feature>Request frequency per IP (requests/min)</Feature>
+      <Feature>Unique URI entropy (optional)</Feature>
+      <Feature>Number of distinct user-agents per IP</Feature>
+    </FeatureSuggestions>
+    <TrainSteps>
+      <Step>Collect historical logs and label (if supervised) or sample representative normal behavior.</Step>
+      <Step>Extract features into a CSV or numpy array.</Step>
+      <Step>Train IsolationForest with contamination set appropriately (e.g., 0.01).</Step>
+      <Step>Save model via joblib.dump(model, "core/model.pkl")</Step>
+      <Step>Deploy model file to server and reference its path in settings.json</Step>
+    </TrainSteps>
+    <SampleTrainingSnippet><![CDATA[
+from sklearn.ensemble import IsolationForest
+import joblib
+X = load_features("data/features.npy")
+model = IsolationForest(contamination=0.01, random_state=42)
+model.fit(X)
+joblib.dump(model, "core/model.pkl")
+]]></SampleTrainingSnippet>
+  </ModelTraining>
+
+  <TestingAndValidation>
+    <SimulatedTests>
+      <Test>Brute force: simulate many failed login entries for an IP — ensure detection & block</Test>
+      <Test>SQLi payloads: insert crafted request lines into access.log to test signature-based heuristics and AI detection</Test>
+      <Test>Service failure: kill apache2 — ensure healer restarts service and logs action</Test>
+      <Test>Patch alert: make security package upgradable on a test VM — verify healthcheck triggers</Test>
+      <Test>API enrichment: feed a known-malicious IP and see VirusTotal/Zscaler flags in alert</Test>
+    </SimulatedTests>
+    <ValidationMetrics>
+      <Note>Track false positives/negatives. Start in dry-run for a period to tune thresholds.</Note>
+      <Record>Log every decision (why blocked, which signals used: AI score, VT, Zscaler)</Record>
+    </ValidationMetrics>
+  </TestingAndValidation>
+
+  <Deployment>
+    <SystemdServiceFile>/etc/systemd/system/selfheal.service (see sample)</SystemdServiceFile>
+    <RunAs>User: root or a dedicated low-privilege admin user with needed sudoers entries for iptables/systemctl</RunAs>
+    <Security>
+      <Secrets>Store API keys in configs/settings.json with restricted filesystem permissions (chmod 600)</Secrets>
+      <Sudoers>Prefer sudoers file to allow only necessary commands for the service user rather than full root</Sudoers>
+    </Security>
+    <BackupAndRollback>
+      <BackupMethod>tar gzip of /etc/apache2 and selected logs to backup_destination with timestamped names</BackupMethod>
+      <Retention>Keep X backups (configurable) and have a restore script for rollback</Retention>
+    </BackupAndRollback>
+  </Deployment>
+
+  <Maintenance>
+    <Routine>
+      <Daily>Healthcheck & security update summary via Telegram</Daily>
+      <Weekly>Full backup, model-refresh if new training data exists</Weekly>
+      <Monthly>Review blocked IPs, false positives, and update whitelist</Monthly>
+    </Routine>
+    <ModelRetraining>
+      <When>When you collect more labeled data or see drift in traffic</When>
+      <How>Export new features -> retrain offline -> replace model.pkl on server</How>
+    </ModelRetraining>
+  </Maintenance>
+
+  <SecurityConsiderations>
+    <Note1>Start in dry-run on production for 1–2 weeks to tune thresholds to avoid blocking legitimate users.</Note1>
+    <Note2>Always maintain a whitelist and an emergency-unblock procedure (e.g., an admin CLI to remove a block).</Note2>
+    <Note3>Restrict file permissions on config files (API keys), and rotate keys periodically.</Note3>
+    <Note4>Log every action with justification to audit later (AI score, API results, timestamp, triggered rule).</Note4>
+  </SecurityConsiderations>
+
+  <PluginSystem>
+    <HowTo>
+      Drop Python files inside /plugins. Each file exposes a register() function or a known hook name.
+      main.py dynamically importlib loads plugins and calls plugin.register(app_context).
+    </HowTo>
+    <Example>plugins/example_plugin.py should define a `def register(context):` to attach callbacks or handlers.</Example>
+  </PluginSystem>
+
+  <Statement>
+    <Purpose>Complete step-by-step guide statement to make SelfHeal-AI fully working</Purpose>
+    <Body>
+      <![CDATA[
+Follow these steps exactly to deploy SelfHeal-AI on an Ubuntu server and make it fully operational:
+
+1) Prepare an Ubuntu VM or server and update the system packages (sudo apt update && sudo apt upgrade -y).
+2) Install Python 3 and required system packages (python3-venv, fwupd) and create a python venv for the project.
+3) Clone the SelfHeal-AI repository into /opt/self-heal-ai, activate virtualenv, and pip install -r requirements.txt.
+4) Copy the example configs to configs/settings.json and populate all required fields: telegram/discord keys, zscaler & virustotal API keys, apache_log_path, web_service, and backup destinations. Protect this file with chmod 600.
+5) Place your trained ML model (core/model.pkl) on the server. If you don't have one yet, run in dry-run mode until you collect sufficient normal traffic to train a model offline.
+6) Configure whitelist (configs/whitelist.txt) to include internal IPs and admin IPs — these will never be blocked.
+7) Start the service in dry-run to verify parsing, enrichment, and alerting without executing iptables/systemctl. Check logs/logs/activity.log for decisions.
+8) Tune AI thresholds and detection rules based on dry-run logs to minimize false positives.
+9) When happy with tuning, disable dry-run, enable systemd service (sudo systemctl enable --now selfheal.service).
+10) Monitor the first 72 hours actively: watch blocked IPs, restart events, alert flood; make rule and whitelist changes as needed.
+11) Set up scheduled backups and daily healthchecks (cron or systemd timers) and ensure firmware and security update alerts are enabled.
+12) Periodically retrain the model offline with new labeled data and redeploy the model file to the server.
+13) Maintain strict key management, rotate API keys, and enforce least-privilege access for the service.
+
+This will result in a production-ready SelfHeal-AI that defends in realtime, self-heals, proactively notifies administrators about pending patches and firmware updates, and continually improves via AI and plugin extensions.
+]]>
+    </Body>
+  </Statement>
+
+  <Appendix>
+    <QuickCommands>
+      <Cmd>Start service: sudo systemctl start selfheal</Cmd>
+      <Cmd>Enable service: sudo systemctl enable selfheal</Cmd>
+      <Cmd>View logs: sudo journalctl -u selfheal -f</Cmd>
+      <Cmd>Test firewall block (dry-run off): sudo iptables -A INPUT -s 1.2.3.4 -j DROP</Cmd>
+      <Cmd>Run firmware check: fwupdmgr get-updates</Cmd>
+    </QuickCommands>
+    <Troubleshooting>
+      <Item>If model loading fails: check model path in settings.json and permissions</Item>
+      <Item>If iptables blocked but site broken: check whitelist and allow admin IPs</Item>
+      <Item>If API rate limits hit: implement caching layer and backoff</Item>
+    </Troubleshooting>
+  </Appendix>
+
+  <Credits>
+    <You>Project owner & architect</You>
+    <Assistant>Generated project spec, templates and guidance</Assistant>
+  </Credits>
+</SelfHealAIProject>
+
+
+
+Bestie 🛡️💻 — good question! For a project report or practical build, you’ll need to clearly define System Requirements + Resources. I’ll break it down like an academic project spec.
+
+⚙️ System Requirements for SelfHeal-AI
+
+1️⃣ Hardware Requirements
+For Student / Academic Prototype (Local VM or PC):
+Processor: Dual-core (Intel i3 / AMD equivalent)
+RAM: 4 GB minimum
+Storage: 20 GB free (Ubuntu + logs + project files)
+Network: Stable internet connection (for API, updates, alerts)
+
+For Production / VPS Deployment:
+
+Processor: 2 vCPU (cloud instance)
+RAM: 2–4 GB
+Storage: 40 GB SSD
+Bandwidth: 1 TB/month (enough for logs + alerts)
+
+2️⃣ Software Requirements
+Operating System:
+Ubuntu 20.04 / 22.04 LTS (recommended)
+Alternatively: Debian, CentOS (minor changes needed)
+
+Programming Language:
+Python 3.8+
+Libraries (Python):
+scikit-learn (for anomaly detection)
+requests (for API calls: VirusTotal, Zscaler)
+pyyaml (for config files)
+schedule / APScheduler (for task scheduling)
+psutil (for system resource monitoring)
+telegram or discord-webhook (for alerts)
+
+Security Tools:
+iptables or ufw (for blocking IPs)
+fail2ban (optional, fallback log-based blocker)
+clamav or VirusTotal API for malware check
+
+Other Utilities:
+systemd → to run as service
+cron → for regular updates
+
+3️⃣ External Resources
+VirusTotal API Key (free tier for scanning hashes/URLs)
+Zscaler API Key (optional, enterprise)
+Telegram Bot Token (for alerts)
+GitHub (for version control & portfolio hosting)
+
+4️⃣ Human Resources (for academic/project team)
+Developer / Researcher: Writes Python code + configures Ubuntu.
+Tester: Simulates attacks (Hydra brute-force, Nmap scans).
+Documenter: Prepares report, system diagrams, and presentations.
+
+5️⃣ Minimum Setup for Demo
+
+One Ubuntu VM (4 GB RAM, 20 GB disk)
+Python 3.8+ installed
+Internet access (for VirusTotal API + Telegram alerts)
+Fake attack simulation (Hydra or ssh root@server brute-force)
+)?
