@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SelfHeal-AI | Cybersecurity Guardian</title>
+<meta name="description" content="SelfHeal-AI: Next-gen AI cybersecurity guardian with auto-healing, proactive defense, and intelligent monitoring.">
+<link rel="icon" href="favicon.ico">
+
+<!-- Tailwind CDN -->
+<script src="https://cdn.tailwindcss.com"></script>
+
+<!-- FontAwesome for icons -->
+<script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+
+<!-- EmailJS -->
+<script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
+<script>
+emailjs.init("YOUR_EMAILJS_USER_ID");
+</script>
+
+<!-- Custom CSS -->
+<style>
+@keyframes fadeInUp {
+0% {opacity: 0; transform: translateY(30px);}
+100% {opacity: 1; transform: translateY(0);}
+}
+.fade-up {
+opacity: 0;
+animation: fadeInUp 1s ease forwards;
+}
+.neon-glow {
+text-shadow:
+0 0 10px #9b59b6,
+0 0 20px #9b59b6,
+0 0 40px #3498db;
+}
+body {
+background-color: #0a0a0a;
+color: #f5f5f5;
+overflow-x: hidden;
+}
+a:hover {color: #3498db;}
+button:hover {box-shadow: 0 0 15px #9b59b6, 0 0 25px #3498db;}
+.matrix-bg {
+background-image: linear-gradient(rgba(255,255,255,0.01) 1px, transparent 1px);
+background-size: 100% 2px;
+}
+.scroll-progress {
+position: fixed; top: 0; left: 0; height: 4px; background: #3498db; width: 0; z-index: 100;
+}
+.faq-item:hover {background: rgba(100,50,200,0.2);}
+</style>
+</head>
+<body class="matrix-bg font-sans relative">
+
+<!-- Scroll Progress Bar -->
+<div class="scroll-progress" id="scroll-progress"></div>
+
+<!-- Sticky Header -->
+<header class="fixed top-0 w-full z-50 bg-black/70 backdrop-blur-md shadow-md">
+<nav class="max-w-7xl mx-auto flex justify-between items-center py-4 px-6">
+<div class="text-2xl font-extrabold text-purple-500 neon-glow">✦ 𝑺𝒆𝒍𝒇 𝑯𝒆𝒂𝒍 𝑨𝑰 ✦</div>
+<ul class="hidden md:flex space-x-6 text-gray-300">
+<li><a href="#stats" class="hover:text-blue-400 transition">Stats</a></li>
+<li><a href="#features" class="hover:text-blue-400 transition">Features</a></li>
+<li><a href="#usecases" class="hover:text-blue-400 transition">Use Cases</a></li>
+<li><a href="#pricing" class="hover:text-blue-400 transition">Pricing</a></li>
+<li><a href="#contact" class="hover:text-blue-400 transition">Contact</a></li>
+<li><a href="#testimonials" class="hover:text-blue-400 transition">Testimonials</a></li>
+<li><a href="#faq" class="hover:text-blue-400 transition">FAQ</a></li>
+</ul>
+<button class="md:hidden text-blue-400" id="menu-toggle"><i class="fas fa-bars"></i></button>
+</nav>
+</header>
+
+<!-- Hero Section -->
+<!-- Hero Section -->
+<section class="h-screen flex flex-col justify-center items-center text-center px-6 relative overflow-hidden">
+  
+  <!-- Particle background -->
+  <div id="hero-particles" class="absolute top-0 left-0 w-full h-full -z-10"></div>
+
+  <!-- Hero Title -->
+  <h1 class="text-5xl md:text-7xl font-extrabold neon-glow fade-up">SelfHeal-AI</h1>
+
+  <!-- Hero Subtitle -->
+  <p class="mt-6 max-w-3xl text-lg md:text-xl text-gray-300 fade-up" style="animation-delay:0.3s">
+    The ultimate <span class="text-purple-500">AI Cybersecurity Guardian</span> — self-healing, proactive, unstoppable.
+  </p>
+
+  <!-- Hero Buttons -->
+  <div class="mt-8 flex gap-4 fade-up" style="animation-delay:0.6s">
+    <a href="#pricing" class="px-8 py-4 bg-blue-500 text-black rounded-xl font-bold shadow-lg hover:scale-110 hover:shadow-[0_0_20px_#3498db] transition duration-300">
+      Get Protected
+    </a>
+    <a href="#demo" class="px-8 py-4 border-2 border-purple-500 text-purple-500 rounded-xl font-bold hover:bg-purple-500 hover:text-black hover:shadow-[0_0_20px_#9b59b6] transition duration-300">
+      Watch Demo
+    </a>
+  </div>
+</section>
+
+<!-- tsParticles Script -->
+<script src="https://cdn.jsdelivr.net/npm/tsparticles@2/tsparticles.bundle.min.js"></script>
+<script>
+tsParticles.load("hero-particles", {
+  fpsLimit: 60,
+  particles: {
+    number: { value: 70, density: { enable: true, value_area: 800 } },
+    color: { value: ["#9b59b6", "#3498db", "#ffffff"] },
+    shape: { type: "circle" },
+    opacity: { value: 0.8, random: true, anim: { enable: true, speed: 1, opacity_min: 0.3, sync: false } },
+    size: { value: 4, random: true, anim: { enable: true, speed: 3, size_min: 1, sync: false } },
+    move: { enable: true, speed: 1.5, direction: "none", random: true, straight: false, out_mode: "out", bounce: false },
+    links: { enable: true, distance: 150, color: "#9b59b6", opacity: 0.4, width: 1.2 } // This creates the lines
+  },
+  interactivity: {
+    events: {
+      onhover: { enable: true, mode: "repulse" },
+      onclick: { enable: true, mode: "push" }
+    },
+    modes: { repulse: { distance: 120, duration: 0.5 }, push: { quantity: 4 } }
+  },
+  retina_detect: true
+});
+</script>
+  
+  <!-- Attack Graph Section -->
+<section id="attack-graph" class="py-20 px-6 bg-gray-900 text-gray-300">
+  <h2 class="text-4xl font-bold text-center mb-8 text-purple-500 fade-up">Attacks Blocked Over Time</h2>
+  
+  <div class="max-w-5xl mx-auto fade-up">
+    <canvas id="attackGraph" class="w-full h-64 rounded-2xl bg-black/20 p-4 shadow-lg"></canvas>
+  </div>
+</section>
+
+<!-- Chart.js Script -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+const ctx = document.getElementById('attackGraph').getContext('2d');
+const attackGraph = new Chart(ctx, {
+type: 'line',
+data: {
+labels: ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug"],
+datasets: [{
+label: 'Attacks Blocked',
+data: [500, 700, 1200, 1500, 1800, 2100, 2400, 3000],
+backgroundColor: 'rgba(155, 89, 182, 0.2)',
+borderColor: '#9b59b6',
+borderWidth: 2,
+fill: true,
+tension: 0.4
+}]
+},
+options: {
+responsive: true,
+plugins: { legend: { labels: { color: "#f5f5f5" } } },
+scales: {
+x: { ticks: { color: "#f5f5f5" }, grid: { color: "rgba(255,255,255,0.1)" } },
+y: { ticks: { color: "#f5f5f5" }, grid: { color: "rgba(255,255,255,0.1)" } }
+}
+}
+});
+
+         
+     
+</script>
+  
+<!-- Stats Section -->
+<section id="stats" class="py-20 px-6 bg-black/40">
+<div class="max-w-7xl mx-auto grid md:grid-cols-4 gap-10 text-center">
+<div class="fade-up">
+<i class="fas fa-shield-alt text-4xl text-purple-500 mb-2"></i>
+<h3 class="text-4xl font-bold text-purple-500" data-count="10000">0</h3>
+<p class="text-gray-400">Attacks Blocked</p>
+</div>
+<div class="fade-up">
+<i class="fas fa-server text-4xl text-blue-400 mb-2"></i>
+<h3 class="text-4xl font-bold text-blue-400" data-count="99.9">0</h3>
+<p class="text-gray-400">Uptime %</p>
+</div>
+<div class="fade-up">
+<i class="fas fa-clock text-4xl text-purple-500 mb-2"></i>
+<h3 class="text-4xl font-bold text-purple-500" data-count="24">0</h3>
+<p class="text-gray-400">/7 Monitoring</p>
+</div>
+<div class="fade-up">
+<i class="fas fa-users text-4xl text-blue-400 mb-2"></i>
+<h3 class="text-4xl font-bold text-blue-400" data-count="500">0</h3>
+<p class="text-gray-400">Clients Served</p>
+</div>
+</div>
+</section>
+
+<!-- Features Section -->
+<section id="features" class="py-20 px-6 bg-gray-900">
+<h2 class="text-4xl font-bold text-center mb-12 text-purple-500 fade-up">Why Choose SelfHeal-AI?</h2>
+<div class="max-w-7xl mx-auto grid md:grid-cols-3 gap-10">
+<div class="p-6 bg-gray-800 rounded-2xl shadow hover:shadow-blue-400/40 transition fade-up">
+<i class="fas fa-bolt text-3xl text-purple-500 mb-3"></i>
+<h3 class="text-xl font-bold mb-3 text-purple-500">Proactive Defense</h3>
+<p>AI detects and neutralizes threats <span class="text-blue-400">before they breach</span>.</p>
+</div>
+<div class="p-6 bg-gray-800 rounded-2xl shadow hover:shadow-purple-500/40 transition fade-up">
+<i class="fas fa-robot text-3xl text-blue-400 mb-3"></i>
+<h3 class="text-xl font-bold mb-3 text-blue-400">AI-Powered Detection</h3>
+<p>Advanced ML models catch anomalies human analysts miss.</p>
+</div>
+<div class="p-6 bg-gray-800 rounded-2xl shadow hover:shadow-purple-400/40 transition fade-up">
+<i class="fas fa-heartbeat text-3xl text-purple-500 mb-3"></i>
+<h3 class="text-xl font-bold mb-3 text-purple-500">Auto-Healing</h3>
+<p>Services recover instantly. Downtime reduced. Business safe.</p>
+</div>
+</div>
+</section>
+
+<!-- Use Cases Section -->
+<section id="usecases" class="py-20 px-6">
+<h2 class="text-4xl font-bold text-center mb-12 text-blue-400 fade-up">Who Needs SelfHeal-AI?</h2>
+<div class="max-w-7xl mx-auto grid md:grid-cols-3 gap-8">
+<div class="p-6 bg-gray-900 rounded-2xl shadow hover:scale-105 transition fade-up">
+<h3 class="font-bold text-purple-500 mb-2">Startups</h3>
+<p>Protect MVP servers with enterprise-grade security from day one.</p>
+<a href="#" class="text-blue-400 hover:underline mt-2 block">Case Study</a>
+</div>
+<div class="p-6 bg-gray-900 rounded-2xl shadow hover:scale-105 transition fade-up">
+<h3 class="font-bold text-blue-400 mb-2">E-Commerce</h3>
+<p>Secure payment gateways & uptime during peak traffic.</p>
+<a href="#" class="text-purple-500 hover:underline mt-2 block">Case Study</a>
+</div>
+<div class="p-6 bg-gray-900 rounded-2xl shadow hover:scale-105 transition fade-up">
+<h3 class="font-bold text-purple-500 mb-2">Enterprises</h3>
+<p>Monitor data centers & critical systems with AI automation.</p>
+<a href="#" class="text-blue-400 hover:underline mt-2 block">Case Study</a>
+</div>
+</div>
+</section>
+
+<!-- Pricing Section -->
+<section id="pricing" class="py-20 px-6 bg-gray-900">
+<h2 class="text-4xl font-bold text-center mb-12 text-purple-500 fade-up">Pricing Plans</h2>
+<div class="flex justify-center mb-8 fade-up">
+<button id="monthly-btn" class="px-4 py-2 bg-blue-500 text-black rounded-l-xl font-bold">Monthly</button>
+<button id="annual-btn" class="px-4 py-2 bg-gray-800 text-gray-300 rounded-r-xl font-bold">Annual</button>
+</div>
+<div class="max-w-7xl mx-auto grid md:grid-cols-3 gap-8">
+<!-- Starter -->
+<div class="p-8 bg-gray-800 rounded-2xl shadow-lg hover:shadow-purple-500/40 transition text-center fade-up">
+<h3 class="text-2xl font-bold text-purple-500 mb-4">Starter</h3>
+<div class="text-3xl font-bold mb-6 plan-price" data-monthly="₹999" data-annual="₹9990">₹999<span class="text-base">/mo</span></div>
+<ul class="mb-6 space-y-2 text-gray-300">
+<li>✔ Log Monitoring</li>
+<li>✔ Basic AI Detection</li>
+<li>✔ Telegram Alerts</li>
+</ul>
+<a href="#contact" class="block py-3 bg-blue-500 text-black rounded-xl hover:scale-105 transition">Choose Plan</a>
+</div>
+<!-- Pro -->
+<div class="p-8 bg-gradient-to-br from-blue-500 to-purple-500 text-black rounded-2xl shadow-xl transform scale-105 text-center fade-up">
+<h3 class="text-2xl font-bold mb-4">Pro <span class="bg-black/50 px-2 py-1 rounded text-sm">Most Popular</span></h3>
+<div class="text-3xl font-bold mb-6 plan-price" data-monthly="₹2999" data-annual="₹29990">₹2999<span class="text-base">/mo</span></div>
+<ul class="mb-6 space-y-2">
+<li>✔ All Starter Features</li>
+<li>✔ Smart IP Blocking</li>
+<li>✔ Daily Patch Alerts</li>
+<li>✔ Discord Integration</li>
+</ul>
+<a href="#contact" class="block py-3 bg-black text-purple-400 rounded-xl hover:scale-105 transition">Choose Plan</a>
+</div>
+<!-- Enterprise -->
+<div class="p-8 bg-gray-800 rounded-2xl shadow-lg hover:shadow-blue-400/40 transition text-center fade-up">
+<h3 class="text-2xl font-bold text-blue-400 mb-4">Enterprise</h3>
+<div class="text-3xl font-bold mb-6 plan-price" data-monthly="₹7999" data-annual="₹79990">₹7999<span class="text-base">/mo</span></div>
+<ul class="mb-6 space-y-2 text-gray-300">
+<li>✔ All Pro Features</li>
+<li>✔ Plugin System</li>
+<li>✔ API Integrations</li>
+<li>✔ 24/7 Priority Support</li>
+</ul>
+<a href="#contact" class="block py-3 bg-purple-500 text-black rounded-xl hover:scale-105 transition">Choose Plan</a>
+</div>
+</div>
+</section>
+
+  <!-- Upcoming Features Section -->
+<section id="upcoming" class="py-20 px-6 relative overflow-hidden bg-gradient-to-b from-black/90 via-gray-900/80 to-black/90 text-center">
+  <div id="particles-upcoming" class="absolute top-0 left-0 w-full h-full -z-10"></div>
+
+  <h2 class="text-4xl md:text-5xl font-bold mb-12 text-purple-500 neon-glow fade-up">Upcoming Features</h2>
+
+  <div class="max-w-5xl mx-auto relative">
+    <!-- Vertical neon line -->
+    <div class="absolute left-1/2 md:left-8 top-0 w-1 h-full bg-purple-500/50 transform -translate-x-1/2 md:translate-x-0"></div>
+
+    <div class="space-y-16">
+      <!-- Feature 1 -->
+      <div class="fade-up relative flex flex-col md:flex-row md:items-start">
+        <div class="absolute left-1/2 md:left-8 transform -translate-x-1/2 md:-translate-x-0 top-0 w-5 h-5 md:w-6 md:h-6 bg-purple-500 rounded-full shadow-neon"></div>
+        <div class="mt-12 md:mt-0 md:ml-12 text-center md:text-left">
+          <h3 class="font-bold text-blue-400 neon-glow">AI Threat Simulation</h3>
+          <p class="text-gray-300">Run simulated cyberattacks to test system resilience in real-time.</p>
+        </div>
+      </div>
+
+      <!-- Feature 2 -->
+      <div class="fade-up relative flex flex-col md:flex-row md:items-start">
+        <div class="absolute left-1/2 md:left-8 transform -translate-x-1/2 md:-translate-x-0 top-0 w-5 h-5 md:w-6 md:h-6 bg-purple-500 rounded-full shadow-neon"></div>
+        <div class="mt-12 md:mt-0 md:ml-12 text-center md:text-left">
+          <h3 class="font-bold text-purple-500 neon-glow">Interactive Dashboards</h3>
+          <p class="text-gray-300">Visualize threats, recovery speed, and blocked attacks with advanced analytics.</p>
+        </div>
+      </div>
+
+      <!-- Feature 3 -->
+      <div class="fade-up relative flex flex-col md:flex-row md:items-start">
+        <div class="absolute left-1/2 md:left-8 transform -translate-x-1/2 md:-translate-x-0 top-0 w-5 h-5 md:w-6 md:h-6 bg-purple-500 rounded-full shadow-neon"></div>
+        <div class="mt-12 md:mt-0 md:ml-12 text-center md:text-left">
+          <h3 class="font-bold text-blue-400 neon-glow">Plugin Marketplace</h3>
+          <p class="text-gray-300">Expand capabilities via community plugins and 3rd-party integrations.</p>
+        </div>
+      </div>
+
+      <!-- Feature 4 -->
+      <div class="fade-up relative flex flex-col md:flex-row md:items-start">
+        <div class="absolute left-1/2 md:left-8 transform -translate-x-1/2 md:-translate-x-0 top-0 w-5 h-5 md:w-6 md:h-6 bg-purple-500 rounded-full shadow-neon"></div>
+        <div class="mt-12 md:mt-0 md:ml-12 text-center md:text-left">
+          <h3 class="font-bold text-purple-500 neon-glow">Smart Auto-Patching</h3>
+          <p class="text-gray-300">SelfHeal-AI will not only detect vulnerabilities but also auto-patch them.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  @media (max-width: 768px) {
+    #upcoming .absolute.w-5 {
+      width: 12px;
+      height: 12px;
+    }
+  }
+  </style>
+  
+  
+<!-- Demo Video -->
+<section id="demo" class="py-20 px-6 bg-black/40 text-center">
+<h2 class="text-4xl font-bold mb-8 text-purple-500 fade-up">Watch SelfHeal-AI in Action</h2>
+<div class="max-w-4xl mx-auto fade-up">
+<iframe class="w-full aspect-video rounded-2xl shadow-lg" src="https://www.youtube.com/embed/YOUR_VIDEO_ID" title="Demo Video" allowfullscreen></iframe>
+</div>
+</section>
+
+<!-- Testimonials Section -->
+<section id="testimonials" class="py-20 px-6 bg-gray-950 text-center text-gray-300">
+<h2 class="text-4xl font-bold mb-12 text-purple-500 fade-up">What Our Clients Say</h2>
+<div class="max-w-4xl mx-auto space-y-6 fade-up">
+<div class="bg-gray-800 rounded-2xl p-6 shadow-lg">
+<p>“SelfHeal-AI saved us from a massive security breach in minutes. Truly revolutionary.”</p>
+<h4 class="mt-4 font-bold text-blue-400">- Tech Startup CEO</h4>
+</div>
+<div class="bg-gray-800 rounded-2xl p-6 shadow-lg">
+<p>“The auto-healing feature is a game-changer. Minimal downtime, maximum peace of mind.”</p>
+<h4 class="mt-4 font-bold text-purple-500">- E-Commerce Manager</h4>
+</div>
+</div>
+</section>
+
+<!-- FAQ Section -->
+<section id="faq" class="py-20 px-6 bg-gray-900 text-gray-300">
+<h2 class="text-4xl font-bold text-center mb-12 text-purple-500 fade-up">Frequently Asked Questions</h2>
+<div class="max-w-4xl mx-auto space-y-4 fade-up">
+<div class="bg-gray-800 p-4 rounded-xl cursor-pointer faq-item">
+<h3 class="font-bold">Does SelfHeal-AI work 24/7?</h3>
+<p class="mt-2 hidden">Yes! It monitors your systems round the clock and auto-heals in real time.</p>
+</div>
+<div class="bg-gray-800 p-4 rounded-xl cursor-pointer faq-item">
+<h3 class="font-bold">Is it compatible with cloud platforms?</h3>
+<p class="mt-2 hidden">Absolutely. SelfHeal-AI integrates with AWS, Azure, GCP, and on-premise servers.</p>
+</div>
+</div>
+</section>
+
+<!-- Contact Section -->
+<section id="contact" class="py-20 px-6 bg-black">
+<h2 class="text-4xl font-bold text-center mb-8 text-purple-500 fade-up">Get Subscription</h2>
+<form id="contact-form" class="max-w-xl mx-auto space-y-6 fade-up">
+<input type="text" name="name" placeholder="Your Name" required class="w-full p-3 rounded-lg text-gray-900">
+<input type="email" name="email" placeholder="Your Email" required class="w-full p-3 rounded-lg text-gray-900">
+<textarea name="message" rows="4" placeholder="Your Message" required class="w-full p-3 rounded-lg text-gray-900"></textarea>
+<button type="submit" class="w-full py-3 bg-purple-500 text-black font-bold rounded-2xl hover:scale-105 transition">Submit</button>
+</form>
+<p id="form-status" class="text-center mt-4"></p>
+</section>
+
+<!-- Footer -->
+<footer class="py-6 text-center text-sm bg-gray-950 text-gray-500">
+© 2025 SelfHeal-AI | Built for Cybersecurity with 💜
+</footer>
+
+<!-- Scripts -->
+<script>
+// EmailJS handler
+document.getElementById("contact-form").addEventListener("submit", function(event) {
+event.preventDefault();
+emailjs.sendForm("YOUR_SERVICE_ID", "YOUR_TEMPLATE_ID", this)
+.then(() => {
+document.getElementById("form-status").innerText = "✅ Message sent successfully!";
+}, () => {
+document.getElementById("form-status").innerText = "❌ Failed to send. Try again.";
+});
+});
+
+// Fade-in scroll reveal
+const elements = document.querySelectorAll(".fade-up");
+const observer = new IntersectionObserver(entries => {
+entries.forEach(entry => {
+if(entry.isIntersecting) {
+entry.style.animation = "fadeInUp 1s ease forwards";
+observer.unobserve(entry);
+}
+});
+}, {threshold:0.1});
+elements.forEach(el => observer.observe(el));
+
+
+    // Animated counters
+    const counters = document.querySelectorAll("[data-count]");
+    counters.forEach(counter => {
+      let target = +counter.getAttribute("data-count");
+      let count = 0;
+      const increment = target / 200;
+      const updateCounter = () => {
+        count += increment;
+        if(count < target){
+          counter.innerText = Math.ceil(count);
+          requestAnimationFrame(updateCounter);
+        } else {
+          counter.innerText = target;
+        }
+      };
+      updateCounter();
+    });
+
+    // Pricing toggle
+    const monthlyBtn = document.getElementById("monthly-btn");
+    const annualBtn = document.getElementById("annual-btn");
+    const prices = document.querySelectorAll(".plan-price");
+    monthlyBtn.addEventListener("click", ()=>{
+      monthlyBtn.classList.add("bg-blue-500","text-black");
+      monthlyBtn.classList.remove("bg-gray-800","text-gray-300");
+      annualBtn.classList.add("bg-gray-800","text-gray-300");
+      annualBtn.classList.remove("bg-blue-500","text-black");
+      prices.forEach(p=>{
+        p.innerHTML = `${p.getAttribute("data-monthly")}<span class="text-base">/mo</span>`;
+      });
+    });
+    annualBtn.addEventListener("click", ()=>{
+      annualBtn.classList.add("bg-blue-500","text-black");
+      annualBtn.classList.remove("bg-gray-800","text-gray-300");
+      monthlyBtn.classList.add("bg-gray-800","text-gray-300");
+      monthlyBtn.classList.remove("bg-blue-500","text-black");
+      prices.forEach(p=>{
+        p.innerHTML = `${p.getAttribute("data-annual")}<span class="text-base">/yr</span>`;
+      });
+    });
+  </script>
+</body>
+                                                    </html>
